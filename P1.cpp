@@ -2,33 +2,32 @@
 #include <vector>
 using namespace std;
 
+int main() {
+    int m, n;
+    cin >> m >> n;
+    vector<vector<int>> A(m, vector<int>(n));
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            cin >> A[i][j];
+        }
+    }
 
-int max_profit_brute_force(const vector<vector<int>>& A) {
-    int m = A.size();
-    int n = A[0].size();
     int max_profit = 0;
-
-    for (int i = 0; i < m; ++i) {
-        for (int j = 0; j < n - 1; ++j) {
-            for (int k = j + 1; k < n; ++k) {
+    int stock, buy_day, sell_day;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            for (int k = j + 1; k < n; k++) {
                 int profit = A[i][k] - A[i][j];
-                max_profit = max(max_profit, profit);
+                if (profit > max_profit) {
+                    max_profit = profit;
+                    stock = i;
+                    buy_day = j;
+                    sell_day = k;
+                }
             }
         }
     }
 
-    return max_profit;
-}
-
-int main() {
-    vector<vector<int>> A = {
-        {10, 12, 14, 18, 20},
-        {13, 15, 19, 21, 25},
-        {9, 10, 12, 16, 22}
-    };
-
-    int max_profit = max_profit_brute_force(A);
-    std::cout << "Maximum profit: " << max_profit << std::endl;
-
+    cout << stock << " " << buy_day << " " << sell_day << endl;
     return 0;
 }
