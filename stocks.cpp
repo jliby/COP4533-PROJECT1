@@ -320,7 +320,7 @@ void printProblem1Output(int& stock, int& buy_day, int& sell_day)
     cout << (stock + 1) << " " << (buy_day + 1) << " " << (sell_day + 1) << endl;
 }
 
-// TASK 1: Big Theta(m * n^2) time brute force algorithm for solving problem 1.
+// Task 1: Big Theta(m * n^2) time brute force algorithm for solving problem 1.
 void task1(vector<vector<int>>& stocks, int& m, int& n)
 {
     int max_profit = 0;
@@ -342,7 +342,7 @@ void task1(vector<vector<int>>& stocks, int& m, int& n)
     printProblem1Output(stock, buy_day, sell_day);
 }
 
-// TASK 2: Big Theta(m * n) time greedy algorithm for solving problem 1.
+// Task 2: Big Theta(m * n) time greedy algorithm for solving problem 1.
 void task2(vector<vector<int>>& stocks)
 {
     int maxProfit = 0;
@@ -377,6 +377,53 @@ void task2(vector<vector<int>>& stocks)
     printProblem1Output(stock, buyDay, sellDay);
 }
 
+// Task 3a: Recursive implementation of Big Theta(m * n) time dynamic programming algorithm for solving problem 1.
+void task3a(vector<vector<int>>& stocks)
+{
+    cout << "PLACEHOLDER FOR TASK 3a\n";
+}
+
+// Task 3b: Bottom-Up implementation of Big Theta(m * n) time dynamic programming algorithm for solving problem 1.
+void task3b(vector<vector<int>>& stocks)
+{
+    cout << "PLACEHOLDER FOR TASK 3b\n";
+}
+
+// Task 4: Big Theta(m * (n choose 2k)) time brute force algorithm for solving problem 2.
+void task4(vector<vector<int>>& stocks)
+{
+    cout << "PLACEHOLDER FOR TASK 4\n";
+}
+
+// Task 5: Big Theta(m * n^2 * k) time dynamic programming algorithm for solving problem 2.
+void task5(vector<vector<int>>& stocks)
+{
+    cout << "PLACEHOLDER FOR TASK 5\n";
+}
+
+// Task 6: Big Theta(m * n * k) time dynamic programming algorithm for solving problem 2.
+void task6(vector<vector<int>>& stocks)
+{
+    cout << "PLACEHOLDER FOR TASK 6\n";
+}
+
+// Task 7: Big Theta(m * 2^n) time brute force algorithm for solving problem 3.
+void task7(vector<vector<int>>& stocks)
+{
+    cout << "PLACEHOLDER FOR TASK 7\n";
+}
+
+// Task 8: Big Theta(m * n^2) time dynamic programming algorithm for solving problem 3.
+void task8(vector<vector<int>>& stocks)
+{
+    cout << "PLACEHOLDER FOR TASK 8\n";
+}
+
+// Task 9: Big Theta(m * n) time dynamic programming algorithm for solving problem 3.
+void task9(vector<vector<int>>& stocks)
+{
+    cout << "PLACEHOLDER FOR TASK 9\n";
+}
 
 /*==
 MAIN
