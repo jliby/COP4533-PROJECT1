@@ -1,27 +1,72 @@
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <string>
 #include <map>
 using namespace std;
 
+bool isFile(string& input)
+{
+    // Checks if the inputted string has the .txt extension as a suffix.
+
+    // If the input length is less than 4, return false.
+    // The logic behind this is that the file name must be at least 5 characters long because ".txt" is 4 characters. 
+    if (input.size() <= 4)
+    {
+        return false;
+    }
+    else if (input.substr(input.find(".")) == ".txt")
+    {
+        // If the input is at least 5 characters long, check if it has ".txt". If yes, return true.
+        return true;
+    }
+
+    return false;
+}
+
 bool validInput(string& input)
 {
     /*
         Input is considered valid if the task number is within range.
-        Acceptable input includes: 1, 2, 3a or 3A, 3b or 3B, 4, 5, 6, 7, 8, 9.
+        Acceptable input includes:
+        - A task number in the range: 1, 2, 3a or 3A, 3b or 3B, 4, 5, 6, 7, 8, 9.
+        - A file ending with ".txt".
         All other input is invalid, as there are no tasks associated with it.
     */
 
-    // If input is not valid, return false.
+    // Checking task number.
     if (input == "1" || input == "2" || input == "3a" || input == "3A" ||
         input == "3b" || input == "3B" || input == "4" || input == "5" ||
         input == "6" || input == "7" || input == "8" || input == "9")
-        {
-            return true;
-        }
-
-    // If input is valid, return true.
+    {
+        // The task number is within range.
+        return true;
+    }
+    else if (isFile(input))
+    {
+        // File with .txt extension is inputted.
+        return true;
+    }
+    // If input is invalid, return false.
     return false;
+}
+
+int isValidFile(string& fileName)
+{
+    int result = -1;
+    ifstream inputFile(fileName);
+
+    string taskNum;
+    inputFile >> taskNum;
+    inputFile.close();
+
+    if (validInput(taskNum))
+    {
+        return stoi(taskNum);
+    }
+
+    cout << "Error: the task specified in the file does not exist." << endl;
+    return result;
 }
 
 void extractMN(string infoString, int& m, int& n)
@@ -84,7 +129,7 @@ bool extractStockPrices(string stockString, vector<vector<int>>& stock_v, map<in
     return true;
 }
 
-bool getValues(int &problemNumber, string &inputString, int &m, int &n, int &k, int &c, vector<vector<int>> &stock_v, map<int, vector<int>> &stock_m)
+bool getValues(istream& inputStream, int &problemNumber, string &inputString, int &m, int &n, int &k, int &c, vector<vector<int>> &stock_v, map<int, vector<int>> &stock_m)
 {
     /*
         ==========
@@ -110,13 +155,13 @@ bool getValues(int &problemNumber, string &inputString, int &m, int &n, int &k, 
     if (problemNumber == 1)
     {
         // Line 1: m & n
-        getline(cin, inputString);
+        getline(inputStream, inputString);
         extractMN(inputString, m, n);
 
         // Lines 2 to m: numbers.
         for (int i = 0; i < m; i++)
         {
-            getline(cin, inputString);
+            getline(inputStream, inputString);
             if (extractStockPrices(inputString, stock_v, stock_m, n, i + 1))
                 continue;
             else
@@ -129,17 +174,17 @@ bool getValues(int &problemNumber, string &inputString, int &m, int &n, int &k, 
     else if (problemNumber == 2)
     {
         // Line 1: k
-        getline(cin, inputString);
+        getline(inputStream, inputString);
         k = stoi(inputString);
 
         // Line 2: m & n
-        getline(cin, inputString);
+        getline(inputStream, inputString);
         extractMN(inputString, m, n);
 
         // Lines 3 to m: numbers.
         for (int i = 0; i < m; i++)
         {
-            getline(cin, inputString);
+            getline(inputStream, inputString);
             if (extractStockPrices(inputString, stock_v, stock_m, n, i + 1))
                 continue;
             else
@@ -152,17 +197,17 @@ bool getValues(int &problemNumber, string &inputString, int &m, int &n, int &k, 
     else if (problemNumber == 3)
     {
         // Line 1: c
-        getline(cin, inputString);
+        getline(inputStream, inputString);
         c = stoi(inputString);
 
         // Line 2: m & n
-        getline(cin, inputString);
+        getline(inputStream, inputString);
         extractMN(inputString, m, n);
 
         // Lines 3 to m: numbers.
         for (int i = 0; i < m; i++)
         {
-            getline(cin, inputString);
+            getline(inputStream, inputString);
             if (extractStockPrices(inputString, stock_v, stock_m, n, i + 1))
                 continue;
             else
@@ -305,27 +350,80 @@ int main(int argc, char *argv[])
         int n = -1;
         int k = -1;
         int c = -1;
+        
+        // (implicit else) - the input type is the CLI.
 
         // Enter a while(true) loop to keep program execution going if the user wishes to change their input without exiting the program again.
         while(true)
         {
-            // Identify associated problem.
-            int problem = findProblem(task);
-            cout << "You have chosen Task " << task << ". ";
-            cout << "This task corresponds to Problem " << problem << ".\n\n";
-            cout << "Below is the expected input for your problem:\n";
-            printProblemInstructions(problem);
-            cout << "\nPlease input the corresponding information.\n";
-
-            // Obtain the values from the user input.
-            if (getValues(problem, input, m, n, k, c, stockVector, stockMap))
+            int problem = -1;
+            // Figure out if the input is user-based within the CLI or a text file.
+                // True = File; False = CLI
+            bool input_is_file = isFile(task);
+            if (input_is_file)
             {
-                cout << "Input successfully parsed; values obtained.\n\n";
+                // The input type is a file.
+                cout << "Input is a file!" << endl;
+                string fileName = task;
+                int taskFromFile = isValidFile(task);
+
+                if (taskFromFile != -1) {
+                    cout << "File is valid!" << endl;
+                    
+                    // Parse the file.
+
+                }
+                else
+                {
+                    cout << "Please format the file correctly and try again." << endl;
+                    return 0;
+                }
+
+                task = to_string(taskFromFile);
+                problem = findProblem(task);
+                cout << "This file is testing Task " << task << ". ";
+                cout << "This task corresponds to Problem " << problem << ".\n\n";
+
+                // Obtain the values from the user input.
+                ifstream inputFile(fileName);
+
+                // The first line always contains the task number.
+                // In this function, it is irrelevant, but it must be parsed to get to the next line.
+                string taskNum;
+                getline(inputFile, taskNum);
+
+                if (getValues(inputFile, problem, input, m, n, k, c, stockVector, stockMap))
+                {
+                    cout << "Input successfully parsed; values obtained.\n\n";
+                }
+                else
+                {
+                    cout << "Please try again from the start." << endl;
+                    return 0;
+                }
+                inputFile.close();
+                // printValues(m, n, k, c, stockVector, stockMap);
             }
             else
             {
-                cout << "Please try again from the start." << endl;
-                return 0;
+                // Identify associated problem.
+                problem = findProblem(task);
+                cout << "You have chosen Task " << task << ". ";
+                cout << "This task corresponds to Problem " << problem << ".\n\n";
+                cout << "Below is the expected input for your problem:\n";
+                printProblemInstructions(problem);
+                cout << "\nPlease input the corresponding information.\n";
+
+                // Obtain the values from the user input.
+                if (getValues(cin, problem, input, m, n, k, c, stockVector, stockMap))
+                {
+                    cout << "Input successfully parsed; values obtained.\n\n";
+                }
+                else
+                {
+                    cout << "Please try again from the start." << endl;
+                    return 0;
+                }
             }
 
             /*
@@ -397,7 +495,7 @@ int main(int argc, char *argv[])
             if (input == "YES")
             {
                 resetValues(m, n, k, c, stockVector, stockMap);
-                cout << "Please enter a task number.\n";
+                cout << "Please enter a task number or file name.\n";
                 getline(cin, input);
                 task = input;
                 if (validInput(task)) {
@@ -405,7 +503,7 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    cout << "Invalid task number; please try again from the start." << endl;
+                    cout << "Invalid task number or file name; please try again from the start." << endl;
                     break;
                 }
             }
@@ -424,7 +522,7 @@ int main(int argc, char *argv[])
     else
     {
         // Input is invalid because the task does not exist; error message and program termination results.
-        cout << "Invalid input; please enter a valid task number." << endl;
+        cout << "Invalid input; please enter a valid task number or a testing file ending with .txt." << endl;
         return 0;
     }
 
