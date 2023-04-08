@@ -54,22 +54,21 @@ bool validInput(string& input)
     return false;
 }
 
-int isValidFile(string& fileName)
+string isValidFile(string& fileName)
 {
-    int result = -1;
+    string taskNum = "-1";
     ifstream inputFile(fileName);
 
-    string taskNum;
     inputFile >> taskNum;
     inputFile.close();
 
     if (validInput(taskNum))
     {
-        return stoi(taskNum);
+        return taskNum;
     }
 
     cout << "Error: the task specified in the file does not exist." << endl;
-    return result;
+    return taskNum;
 }
 
 void extractMN(string infoString, int& m, int& n)
@@ -457,7 +456,6 @@ void task3b(vector<vector<int>>& stocks, int& m, int& n)
     }
 
     cout << "STOCK: " << stock+1 << " BUY DAY: " << buyDay+1 << " SELL DAY: " << sellDay+1 << endl;
-    cout << "PLACEHOLDER FOR TASK 3b\n";
 }
 
 // Task 4: Big Theta(m * (n choose 2k)) time brute force algorithm for solving problem 2.
@@ -562,13 +560,11 @@ int main(int argc, char *argv[])
                 // The input type is a file.
                 cout << "Input is a file!" << endl;
                 string fileName = task;
-                int taskFromFile = isValidFile(task);
+                string taskFromFile = isValidFile(task);
 
-                if (taskFromFile != -1) {
+                if (taskFromFile != "-1") {
                     cout << "File is valid!" << endl;
-                    
                     // Parse the file.
-
                 }
                 else
                 {
@@ -576,7 +572,7 @@ int main(int argc, char *argv[])
                     return 0;
                 }
 
-                task = to_string(taskFromFile);
+                task = taskFromFile;
                 problem = findProblem(task);
                 cout << "This file is testing Task " << task << ". ";
                 cout << "This task corresponds to Problem " << problem << ".\n\n";
