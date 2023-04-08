@@ -5,6 +5,9 @@
 #include <map>
 using namespace std;
 
+/*=============
+INPUT FUNCTIONS
+=============*/
 bool isFile(string& input)
 {
     // Checks if the inputted string has the .txt extension as a suffix.
@@ -303,6 +306,39 @@ void printProblemInstructions(int problemNumber)
     }
 }
 
+/*=============
+TASK FUNCTIONS
+=============*/
+
+void task1(vector<vector<int>>& stocks, int& m, int& n)
+{
+    int max_profit = 0;
+    int stock, buy_day, sell_day;
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < n; j++) {
+            for (int k = j + 1; k < n; k++) {
+                int profit = stocks[i][k] - stocks[i][j];
+                if (profit > max_profit) {
+                    max_profit = profit;
+                    stock = i;
+                    buy_day = j;
+                    sell_day = k;
+                }
+            }
+        }
+    }
+    /*
+        OUTPUT:
+        Note that stock, buy_day, and sell_day must all be incremented by 1 before printing
+        because they represent an INDEX, which begins from 0, but the instructions request output to be indexed from 1.
+    */
+    cout << (stock + 1) << " " << (buy_day + 1) << " " << (sell_day + 1) << endl;
+}
+
+/*==
+MAIN
+==*/
+
 int main(int argc, char *argv[])
 {
     // Checking input validity: number of arguments (should be 2 - the program name and the task number).
@@ -437,11 +473,12 @@ int main(int argc, char *argv[])
                 Functions exist to call upon each of the algorithms associated with a given task.
             */
 
-            cout << "The algorithm for task " << task << ", problem " << problem << " will now execute.\n\n";
-
+            cout << "The algorithm for task " << task << ", problem " << problem << " will now execute.\n";
+            cout << "OUTPUT:\n\n";
+            
             if (task == "1")
             {
-                cout << "PLACEHOLDER: TASK 1 OUTPUT." << endl;
+                task1(stockVector, m, n);
             }
             else if (task == "2")
             {
@@ -490,12 +527,12 @@ int main(int argc, char *argv[])
                 At this point, the program has generated output.
                 The user may now choose to test again with different values for the same task or a different one.
             */
-            cout << "If you would like to restart the program, enter \"YES\". If not, enter \"EXIT\".\n";
+            cout << "If you would like to restart the program, enter \"YES\". If not, enter \"EXIT\".\n\n";
             getline(cin, input);
             if (input == "YES")
             {
                 resetValues(m, n, k, c, stockVector, stockMap);
-                cout << "Please enter a task number or file name.\n";
+                cout << "Please enter a task number or file name.\n\n";
                 getline(cin, input);
                 task = input;
                 if (validInput(task)) {
