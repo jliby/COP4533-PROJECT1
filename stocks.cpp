@@ -310,6 +310,17 @@ void printProblemInstructions(int problemNumber)
 TASK FUNCTIONS
 =============*/
 
+void printProblem1Output(int& stock, int& buy_day, int& sell_day)
+{
+    /*
+        OUTPUT:
+        Note that stock, buy_day, and sell_day must all be incremented by 1 before printing
+        because they represent an INDEX, which begins from 0, but the instructions request output to be indexed from 1.
+    */
+    cout << (stock + 1) << " " << (buy_day + 1) << " " << (sell_day + 1) << endl;
+}
+
+// TASK 1: Big Theta(m * n^2) time brute force algorithm for solving problem 1.
 void task1(vector<vector<int>>& stocks, int& m, int& n)
 {
     int max_profit = 0;
@@ -327,13 +338,45 @@ void task1(vector<vector<int>>& stocks, int& m, int& n)
             }
         }
     }
-    /*
-        OUTPUT:
-        Note that stock, buy_day, and sell_day must all be incremented by 1 before printing
-        because they represent an INDEX, which begins from 0, but the instructions request output to be indexed from 1.
-    */
-    cout << (stock + 1) << " " << (buy_day + 1) << " " << (sell_day + 1) << endl;
+
+    printProblem1Output(stock, buy_day, sell_day);
 }
+
+// TASK 2: Big Theta(m * n) time greedy algorithm for solving problem 1.
+void task2(vector<vector<int>>& stocks)
+{
+    int maxProfit = 0;
+    int stock = 0, buyDay = 0, sellDay = 0, tempStock = 0, tempBuyDay = 0, tempSellDay = 0;
+
+    for (auto i = 0; i < stocks.size(); ++i) {
+        int maxProfitPerStock = 0;
+        int minPrice = stocks[i][0];
+
+        for (auto j = 1; j < stocks[i].size(); ++j) {
+            if (stocks[i][j] < minPrice) {
+                minPrice = stocks[i][j];
+                tempBuyDay = j;
+            } else {
+                int currentProfit = stocks[i][j] - minPrice;
+                if (currentProfit > maxProfitPerStock) {
+                    maxProfitPerStock = currentProfit;
+                    tempStock = i;
+                    tempSellDay = j;
+                }
+            }
+        }
+
+        if (maxProfitPerStock > maxProfit) {
+            maxProfit = maxProfitPerStock;
+            stock = tempStock;
+            buyDay = tempBuyDay;
+            sellDay = tempSellDay;
+        }
+    }
+
+    printProblem1Output(stock, buyDay, sellDay);
+}
+
 
 /*==
 MAIN
@@ -475,14 +518,14 @@ int main(int argc, char *argv[])
 
             cout << "The algorithm for task " << task << ", problem " << problem << " will now execute.\n";
             cout << "OUTPUT:\n\n";
-            
+
             if (task == "1")
             {
                 task1(stockVector, m, n);
             }
             else if (task == "2")
             {
-                cout << "PLACEHOLDER: TASK 2 OUTPUT." << endl;
+                task2(stockVector);
             }
             else if (task == "3a" || task == "3A")
             {
