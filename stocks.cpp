@@ -426,8 +426,37 @@ void task3a(vector<vector<int>>& stocks, int& m, int& n)
 }
 
 // Task 3b: Bottom-Up implementation of Big Theta(m * n) time dynamic programming algorithm for solving problem 1.
-void task3b(vector<vector<int>>& stocks)
+void task3b(vector<vector<int>>& stocks, int& m, int& n)
 {
+
+    vector<vector<int>> memo(m, vector<int>(n, 0));
+    int stock = 0, buyDay = 0, sellDay = 0;
+    int max_profit_so_far = 0;
+
+    // Calculate the maximum profit for the last day for each stock
+    for (int i = 0; i < m; i++) {
+        memo[i][n-1] = 0;
+        for (int j = n-2; j >= 0; j--) {
+            memo[i][j] = max(0, stocks[i][j+1] - stocks[i][j] + memo[i][j+1]);
+        }
+    }
+
+    // Calculate the maximum profit for each stock and each day
+    for (int j = n-2; j >= 0; j--) {
+        for (int i = 0; i < m; i++) {
+            int future_profit = (i == m-1) ? 0 : memo[i+1][j];
+            memo[i][j] = max(memo[i][j], future_profit);
+            if (stocks[i][j] < stocks[stock][buyDay]) {
+                stock = i;
+                buyDay = j;
+            } else if (stocks[i][j] - stocks[stock][buyDay] + memo[i][j] > max_profit_so_far) {
+                sellDay = j;
+                max_profit_so_far = stocks[i][j] - stocks[stock][buyDay] + memo[i][j];
+            }
+        }
+    }
+
+    cout << "STOCK: " << stock+1 << " BUY DAY: " << buyDay+1 << " SELL DAY: " << sellDay+1 << endl;
     cout << "PLACEHOLDER FOR TASK 3b\n";
 }
 
@@ -622,6 +651,7 @@ int main(int argc, char *argv[])
             }
             else if (task == "3b" || task == "3B")
             {
+                task3b(stockVector, m, n);
                 cout << "PLACEHOLDER: TASK 3b OUTPUT." << endl;
             }
             else if (task == "4")
