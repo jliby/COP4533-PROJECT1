@@ -378,9 +378,51 @@ void task2(vector<vector<int>>& stocks)
 }
 
 // Task 3a: Recursive implementation of Big Theta(m * n) time dynamic programming algorithm for solving problem 1.
-void task3a(vector<vector<int>>& stocks)
+
+int max_profit(vector<vector<int>>& A, int stock, int day, vector<vector<int>>& memo, int& buyDay, int& sellDay) {
+    if (day == A[0].size()) {
+        return 0;
+    }
+    if (memo[stock][day] != -1) {
+        return memo[stock][day];
+    }
+    int max_profit_so_far = 0;
+    for (int i = day + 1; i < A[0].size(); i++) {
+        int profit = A[stock][i] - A[stock][day];
+        if (profit > 0) {
+            int future_profit = max_profit(A, stock, i + 1, memo, buyDay, sellDay);
+            if (profit + future_profit > max_profit_so_far) {
+                max_profit_so_far = profit + future_profit;
+                buyDay = day;
+                sellDay = i;
+            }
+        }
+    }
+    int future_profit = max_profit(A, stock + 1, day, memo, buyDay, sellDay);
+    if (future_profit > max_profit_so_far) {
+        max_profit_so_far = future_profit;
+    }
+    memo[stock][day] = max_profit_so_far;
+    return max_profit_so_far;
+}
+
+void task3a(vector<vector<int>>& stocks, int& m, int& n)
 {
-    cout << "PLACEHOLDER FOR TASK 3a\n";
+    vector<vector<int>> memo(m, vector<int>(n, -1));
+    int max_profit_so_far = 0;
+    int stock = 0, buyDay = 0, sellDay = 0;
+    for (int i = 0; i < m; i++) {
+        int temp_buyDay = 0, temp_sellDay = 0;
+        int temp_max_profit = max_profit(stocks, i, 0, memo, temp_buyDay, temp_sellDay);
+        if (temp_max_profit > max_profit_so_far) {
+            max_profit_so_far = temp_max_profit;
+            stock = i;
+            buyDay = temp_buyDay;
+            sellDay = temp_sellDay;
+        }
+    }
+
+    printProblem1Output(stock, buyDay, sellDay);
 }
 
 // Task 3b: Bottom-Up implementation of Big Theta(m * n) time dynamic programming algorithm for solving problem 1.
@@ -576,7 +618,7 @@ int main(int argc, char *argv[])
             }
             else if (task == "3a" || task == "3A")
             {
-                cout << "PLACEHOLDER: TASK 3a OUTPUT." << endl;
+                task3a(stockVector, m, n);
             }
             else if (task == "3b" || task == "3B")
             {
