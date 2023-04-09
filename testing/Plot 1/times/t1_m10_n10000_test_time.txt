@@ -1,6 +1,0 @@
-TASK 1's ALGORITHM EXECUTION TIME IN INDIVIDUAL UNITS, NOT AS A COMBINED VALUE:
-Hours: 0
-Minutes: 0
-Seconds: 5
-Milliseconds: 5546
-Microseconds: 5546912

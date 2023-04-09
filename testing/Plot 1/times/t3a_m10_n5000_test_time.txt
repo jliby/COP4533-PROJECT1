@@ -1,6 +1,0 @@
-TASK 3a's ALGORITHM EXECUTION TIME IN INDIVIDUAL UNITS, NOT AS A COMBINED VALUE:
-Hours: 0
-Minutes: 0
-Seconds: 1
-Milliseconds: 1286
-Microseconds: 1286892
