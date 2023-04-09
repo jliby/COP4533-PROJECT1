@@ -730,11 +730,10 @@ int main(int argc, char *argv[])
             else if (task == "3b" || task == "3B")
             {
                 task3b(stockVector);
-                cout << "PLACEHOLDER: TASK 3b OUTPUT." << endl;
             }
             else if (task == "4")
             {
-                cout << "PLACEHOLDER: TASK 4 OUTPUT." << endl;
+                task4(stockVector, k, m, n);
             }
             else if (task == "5")
             {
