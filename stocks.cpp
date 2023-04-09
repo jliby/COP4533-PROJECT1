@@ -11,7 +11,7 @@ using namespace std::chrono;
 /*=============
 INPUT FUNCTIONS
 =============*/
-void logTime(auto& start, auto& stop, string& taskNumber)
+void logTime(auto& start, auto& stop, string& taskNumber, string outputFileDesignation)
 {   
     auto duration_hr = duration_cast<hours>(stop - start);
     auto duration_min = duration_cast<minutes>(stop - start); 
@@ -19,9 +19,9 @@ void logTime(auto& start, auto& stop, string& taskNumber)
     auto duration_millisec = duration_cast<milliseconds>(stop - start);
     auto duration_microsec = duration_cast<microseconds>(stop - start);
 
-    cout << "Outputting execution time of task's algorithm to time.txt" << endl; 
+    cout << "Outputting execution time of task's algorithm to " << outputFileDesignation << "." << endl; 
 
-    ofstream outputFile("time.txt");
+    ofstream outputFile(outputFileDesignation);
     if (outputFile.is_open())
     {
         outputFile << "TASK " << taskNumber << "'s ALGORITHM EXECUTION TIME IN INDIVIDUAL UNITS, NOT AS A COMBINED VALUE:" << endl;
@@ -657,195 +657,173 @@ int main(int argc, char *argv[])
         int n = -1;
         int k = -1;
         int c = -1;
-        
-        // (implicit else) - the input type is the CLI.
-
-        // Enter a while(true) loop to keep program execution going if the user wishes to change their input without exiting the program again.
-        while(true)
+        bool input_is_file = isFile(task);
+        string strippedFileName = task;
+        int problem = -1;
+        // Figure out if the input is user-based within the CLI or a text file.
+        // True = File; False = CLI
+        if (input_is_file)
         {
-            int problem = -1;
-            // Figure out if the input is user-based within the CLI or a text file.
-                // True = File; False = CLI
-            bool input_is_file = isFile(task);
-            if (input_is_file)
+            // The input type is a file.
+            cout << "Input is a file!" << endl;
+            string fileName = task;
+            string taskFromFile = isValidFile(task);
+
+            if (taskFromFile != "-1")
             {
-                // The input type is a file.
-                cout << "Input is a file!" << endl;
-                string fileName = task;
-                string taskFromFile = isValidFile(task);
-
-                if (taskFromFile != "-1") {
-                    cout << "File is valid!" << endl;
-                    // Parse the file.
-                }
-                else
-                {
-                    cout << "Please format the file correctly and try again." << endl;
-                    return 0;
-                }
-
-                task = taskFromFile;
-                problem = findProblem(task);
-                cout << "This file is testing Task " << task << ". ";
-                cout << "This task corresponds to Problem " << problem << ".\n\n";
-
-                // Obtain the values from the user input.
-                ifstream inputFile(fileName);
-
-                // The first line always contains the task number.
-                // In this function, it is irrelevant, but it must be parsed to get to the next line.
-                string taskNum;
-                getline(inputFile, taskNum);
-
-                if (getValues(inputFile, problem, input, m, n, k, c, stockVector, stockMap))
-                {
-                    cout << "Input successfully parsed; values obtained.\n\n";
-                }
-                else
-                {
-                    cout << "Please try again from the start." << endl;
-                    return 0;
-                }
-                inputFile.close();
-                // printValues(m, n, k, c, stockVector, stockMap);
+                cout << "File is valid!" << endl;
+                // Parse the file.
             }
             else
             {
-                // Identify associated problem.
-                problem = findProblem(task);
-                cout << "You have chosen Task " << task << ". ";
-                cout << "This task corresponds to Problem " << problem << ".\n\n";
-                cout << "Below is the expected input for your problem:\n";
-                printProblemInstructions(problem);
-                cout << "\nPlease input the corresponding information.\n";
-
-                // Obtain the values from the user input.
-                if (getValues(cin, problem, input, m, n, k, c, stockVector, stockMap))
-                {
-                    cout << "Input successfully parsed; values obtained.\n\n";
-                }
-                else
-                {
-                    cout << "Please try again from the start." << endl;
-                    return 0;
-                }
+                cout << "Please format the file correctly and try again." << endl;
+                return 0;
             }
 
-            /*
-                =========
-                ALGORITHM
-                =========
-                Now that the stock prices have been extracted and inputted into a vector as well as an ordered map,
-                operations can begin upon them.
+            task = taskFromFile;
+            problem = findProblem(task);
+            cout << "This file is testing Task " << task << ". ";
+            cout << "This task corresponds to Problem " << problem << ".\n\n";
 
-                These operations depend on the problem and task type.
-                Functions exist to call upon each of the algorithms associated with a given task.
-            
-                Execution time will be measured with the "chrono" library.
-            */
+            // Obtain the values from the user input.
+            ifstream inputFile(fileName);
 
-            cout << "The algorithm for task " << task << ", problem " << problem << " will now execute.\n";
-            cout << "OUTPUT:\n\n";
-            auto start = high_resolution_clock::now();
-            auto stop = high_resolution_clock::now();
-            if (task == "1")
-            {
-                start = high_resolution_clock::now();
-                task1(stockVector, m, n);
-                stop = high_resolution_clock::now();
-            }
-            else if (task == "2")
-            {
-                start = high_resolution_clock::now();
-                task2(stockVector);
-                stop = high_resolution_clock::now();
-            }
-            else if (task == "3a" || task == "3A")
-            {
-                start = high_resolution_clock::now();
-                task3a(stockVector);
-                stop = high_resolution_clock::now();
-            }
-            else if (task == "3b" || task == "3B")
-            {
-                start = high_resolution_clock::now();
-                task3b(stockVector);
-                stop = high_resolution_clock::now();
-            }
-            else if (task == "4")
-            {
-                start = high_resolution_clock::now();
-                task4(stockVector, k, m, n);
-                stop = high_resolution_clock::now();
-            }
-            else if (task == "5")
-            {
-                start = high_resolution_clock::now();
-                cout << "PLACEHOLDER: TASK 5 OUTPUT." << endl;
-                stop = high_resolution_clock::now();
-            }
-            else if (task == "6")
-            {
-                start = high_resolution_clock::now();
-                cout << "PLACEHOLDER: TASK 6 OUTPUT." << endl;
-                stop = high_resolution_clock::now();
-            }
-            else if (task == "7")
-            {
-                start = high_resolution_clock::now();
-                cout << "PLACEHOLDER: TASK 7 OUTPUT." << endl;
-                stop = high_resolution_clock::now();
-            }
-            else if (task == "8")
-            {
-                start = high_resolution_clock::now();
-                cout << "PLACEHOLDER: TASK 8 OUTPUT." << endl;
-                stop = high_resolution_clock::now();
-            }
-            else if (task == "9")
-            {
-                start = high_resolution_clock::now();
-                cout << "PLACEHOLDER: TASK 9 OUTPUT." << endl;
-                stop = high_resolution_clock::now();
-            }
+            // The first line always contains the task number.
+            // In this function, it is irrelevant, but it must be parsed to get to the next line.
+            string taskNum;
+            getline(inputFile, taskNum);
 
-            cout << "\nExecution cycle complete.\n";
-            logTime(start, stop, task);
-            /*
-                ============
-                END OF CYCLE
-                ============
-                At this point, the program has generated output.
-                The user may now choose to test again with different values for the same task or a different one.
-            */
-            cout << "If you would like to restart the program, enter \"YES\". If not, enter \"EXIT\".\n\n";
-            getline(cin, input);
-            if (input == "YES")
+            if (getValues(inputFile, problem, input, m, n, k, c, stockVector, stockMap))
             {
-                resetValues(m, n, k, c, stockVector, stockMap);
-                cout << "Please enter a task number or file name.\n\n";
-                getline(cin, input);
-                task = input;
-                if (validInput(task)) {
-                    continue;
-                }
-                else
-                {
-                    cout << "Invalid task number or file name; please try again from the start." << endl;
-                    break;
-                }
-            }
-            else if (input == "EXIT")
-            {
-                cout << "Goodbye!\n";
-                break;
+                cout << "Input successfully parsed; values obtained.\n\n";
             }
             else
             {
-                cout << "Invalid input; please try again from the start." << endl;
-                break;
+                cout << "Please try again from the start." << endl;
+                return 0;
+            }
+            inputFile.close();
+            // printValues(m, n, k, c, stockVector, stockMap);
+        }
+        else
+        {
+            // Identify associated problem.
+            problem = findProblem(task);
+            cout << "You have chosen Task " << task << ". ";
+            cout << "This task corresponds to Problem " << problem << ".\n\n";
+            cout << "Below is the expected input for your problem:\n";
+            printProblemInstructions(problem);
+            cout << "\nPlease input the corresponding information.\n";
+
+            // Obtain the values from the user input.
+            if (getValues(cin, problem, input, m, n, k, c, stockVector, stockMap))
+            {
+                cout << "Input successfully parsed; values obtained.\n\n";
+            }
+            else
+            {
+                cout << "Please try again from the start." << endl;
+                return 0;
             }
         }
+
+        /*
+            =========
+            ALGORITHM
+            =========
+            Now that the stock prices have been extracted and inputted into a vector as well as an ordered map,
+            operations can begin upon them.
+
+            These operations depend on the problem and task type.
+            Functions exist to call upon each of the algorithms associated with a given task.
+
+            Execution time will be measured with the "chrono" library.
+        */
+
+        cout << "The algorithm for task " << task << ", problem " << problem << " will now execute.\n";
+        cout << "OUTPUT:\n\n";
+        auto start = high_resolution_clock::now();
+        auto stop = high_resolution_clock::now();
+        if (task == "1")
+        {
+            start = high_resolution_clock::now();
+            task1(stockVector, m, n);
+            stop = high_resolution_clock::now();
+        }
+        else if (task == "2")
+        {
+            start = high_resolution_clock::now();
+            task2(stockVector);
+            stop = high_resolution_clock::now();
+        }
+        else if (task == "3a" || task == "3A")
+        {
+            start = high_resolution_clock::now();
+            task3a(stockVector);
+            stop = high_resolution_clock::now();
+        }
+        else if (task == "3b" || task == "3B")
+        {
+            start = high_resolution_clock::now();
+            task3b(stockVector);
+            stop = high_resolution_clock::now();
+        }
+        else if (task == "4")
+        {
+            start = high_resolution_clock::now();
+            task4(stockVector, k, m, n);
+            stop = high_resolution_clock::now();
+        }
+        else if (task == "5")
+        {
+            start = high_resolution_clock::now();
+            cout << "PLACEHOLDER: TASK 5 OUTPUT." << endl;
+            stop = high_resolution_clock::now();
+        }
+        else if (task == "6")
+        {
+            start = high_resolution_clock::now();
+            cout << "PLACEHOLDER: TASK 6 OUTPUT." << endl;
+            stop = high_resolution_clock::now();
+        }
+        else if (task == "7")
+        {
+            start = high_resolution_clock::now();
+            cout << "PLACEHOLDER: TASK 7 OUTPUT." << endl;
+            stop = high_resolution_clock::now();
+        }
+        else if (task == "8")
+        {
+            start = high_resolution_clock::now();
+            cout << "PLACEHOLDER: TASK 8 OUTPUT." << endl;
+            stop = high_resolution_clock::now();
+        }
+        else if (task == "9")
+        {
+            start = high_resolution_clock::now();
+            cout << "PLACEHOLDER: TASK 9 OUTPUT." << endl;
+            stop = high_resolution_clock::now();
+        }
+
+        cout << "\nExecution cycle complete.\n";
+        if (input_is_file)
+        {
+            strippedFileName = strippedFileName.substr(0, strippedFileName.size() - 4);
+            strippedFileName += "_time.txt";
+            logTime(start, stop, task, strippedFileName);
+        }
+        else
+        {
+            logTime(start, stop, task, "CLI_time.txt");
+        }
+
+        /*
+            ============
+            END OF CYCLE
+            ============
+            At this point, the program has generated output.
+            The user may now choose to test again with different values for the same task or a different one.
+        */
     }
     else
     {
