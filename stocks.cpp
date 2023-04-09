@@ -504,76 +504,62 @@ void task3b(vector<vector<int>>& stocks)
 }
 
 // Task 4: Big Theta(m * (n choose 2k)) time brute force algorithm for solving problem 2.
-void task4(vector<vector<int>>& stocks, int& k, int& m, int& n)
+struct Result
 {
-    /*
-        - Initialize a vector of indices to represent the buy and sell days for each stock.
-        - Generate all possible combinations of buy and sell days using the indices vector.
-        - For each combination, calculate the profit made from buying and selling stocks for that combination.
-        - Keep track of the combination with the highest profit and return it as the result.
-    */
-    vector<vector<int>> max_transactions;
-    int max_profit = 0;
-
-    // Vector "stockIndices" of size m; stocks[i] is the index of the ith stock.
-    vector<int> stockIndices(m);
-    for (int i = 0; i < m; i++)
-    {
-        stockIndices[i] = i;
+    int profit;
+    int stock_idx;
+    int buy_day;
+    int sell_day;
+};
+int sellDay = 0;
+int currentMax = 0;
+Result task4Recursive(vector<vector<int>>& prices, int m, int n, int k, int stock_idx, int transactions, int day, bool canBuy) {
+    if (day == n || transactions == k * 2) {
+        return {0, -1, -1, -1};
     }
 
-    // Vector "transactionIndices" of size 2*k; transactionIndices[i] is
-    // the index of the day to buy or sell for transaction i.
-    vector<int> transactionIndices(2 * k);
-    for (int i = 0; i < 2 * k; i++)
-    {
-        transactionIndices[i] = i;
+    Result no_action_profit = task4Recursive(prices, m, n, k, stock_idx, transactions, day + 1, canBuy);
+    Result action_profit = {0, -1, -1, -1};
+
+    if (canBuy) {
+        Result tmp = task4Recursive(prices, m, n, k, stock_idx, transactions + 1, day + 1, !canBuy);
+        action_profit.profit = -prices[stock_idx][day] + tmp.profit;
+        action_profit.buy_day = day;
+    } else {
+        Result tmp = task4Recursive(prices, m, n, k, stock_idx, transactions + 1, day + 1, !canBuy);
+        action_profit.profit = prices[stock_idx][day] + tmp.profit;
+        if (currentMax < action_profit.profit) {
+            currentMax = action_profit.profit;
+            sellDay = day;
+        }
     }
 
-    // This do-while loop iterates through all possible combinations of buying/selling days.
-    do
-    {
-        // Vectors to represent indices of potential buying & selling days.
-        vector<int> buy_indices(k), sell_indices(k);
-        for (int i = 0; i < k; i++)
-        {
-            buy_indices[i] = transactionIndices[2 * i];
-            sell_indices[i] = transactionIndices[2 * i + 1];
-        }
-        // Iterate through k transactions, calculating maximum profit for each one by finding buy/sell difference.
-        vector<vector<int>> transactions;
-        int profit = 0;
-        for (int i = 0; i < k; i++)
-        {
-            int stock = stockIndices[buy_indices[i]];
-            int buy_day = i;
-            int sell_day = i;
-            for (int j = i + 1; j < k; j++)
-            {
-                if (stocks[stock][j] > stocks[stock][sell_day])
-                {
-                    sell_day = j;
-                }
-            }
-            if (sell_day > i)
-            {
-                transactions.push_back({stock, buy_day, sell_day});
-                profit += stocks[stock][sell_day] - stocks[stock][buy_day];
-            }
-        }
-        // If the profit is greater than the current max_profit, update it and max_transactions.
-        if (profit > max_profit)
-        {
-            max_profit = profit;
-            max_transactions = transactions;
-        }
-    } while (next_permutation(transactionIndices.begin(), transactionIndices.end()));
-
-    // Print problem 2 output.
-    for (auto transaction : max_transactions)
-    {
-        cout << transaction[0] + 1 << " " << transaction[1] + 1 << " " << transaction[2] + 1 << endl;
+    if (action_profit.profit > no_action_profit.profit) {
+        action_profit.stock_idx = stock_idx;
+        no_action_profit = action_profit;
+    } else {
+        no_action_profit.stock_idx = stock_idx;
     }
+
+    return no_action_profit;
+}
+
+Result task4(vector<vector<int>>& prices, int m, int n, int k) {
+    Result max_profit = {0, -1, -1, -1};
+
+    for (int i = 0; i < m; ++i) {
+        Result tmp = task4Recursive(prices, m, n, k, i, 0, 0, true);
+        if (tmp.profit > max_profit.profit) {
+            max_profit = tmp;
+        }
+    }
+
+    return max_profit;
+}
+
+void printTask4(Result task4Result)
+{
+    cout << task4Result.stock_idx + 1 << " " << task4Result.buy_day + 1 << " " << task4Result.sell_day + 1 << endl;
 }
 
 // Task 5: Big Theta(m * n^2 * k) time dynamic programming algorithm for solving problem 2.
@@ -771,7 +757,8 @@ int main(int argc, char *argv[])
         else if (task == "4")
         {
             start = high_resolution_clock::now();
-            task4(stockVector, k, m, n);
+            Result result = task4(stockVector, m, n, k);
+            printTask4(result);
             stop = high_resolution_clock::now();
         }
         else if (task == "5")
