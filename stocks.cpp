@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <algorithm>
 using namespace std;
 
 /*=============
@@ -54,22 +55,21 @@ bool validInput(string& input)
     return false;
 }
 
-int isValidFile(string& fileName)
+string isValidFile(string& fileName)
 {
-    int result = -1;
+    string taskNum = "-1";
     ifstream inputFile(fileName);
 
-    string taskNum;
     inputFile >> taskNum;
     inputFile.close();
 
     if (validInput(taskNum))
     {
-        return stoi(taskNum);
+        return taskNum;
     }
 
     cout << "Error: the task specified in the file does not exist." << endl;
-    return result;
+    return taskNum;
 }
 
 void extractMN(string infoString, int& m, int& n)
@@ -379,46 +379,52 @@ void task2(vector<vector<int>>& stocks)
 
 // Task 3a: Recursive implementation of Big Theta(m * n) time dynamic programming algorithm for solving problem 1.
 
-int max_profit(vector<vector<int>>& A, int stock, int day, vector<vector<int>>& memo, int& buyDay, int& sellDay) {
-    if (day == A[0].size()) {
+int max_profit(vector<vector<int>>& A, int stock, int day, vector<vector<int>>& memo) {
+    if (day < 0) {
         return 0;
     }
     if (memo[stock][day] != -1) {
         return memo[stock][day];
     }
-    int max_profit_so_far = 0;
-    for (int i = day + 1; i < A[0].size(); i++) {
-        int profit = A[stock][i] - A[stock][day];
-        if (profit > 0) {
-            int future_profit = max_profit(A, stock, i + 1, memo, buyDay, sellDay);
-            if (profit + future_profit > max_profit_so_far) {
-                max_profit_so_far = profit + future_profit;
-                buyDay = day;
-                sellDay = i;
-            }
-        }
+
+    int min_price = A[stock][0];
+    for (int i = 1; i <= day; i++) {
+        min_price = min(min_price, A[stock][i]);
     }
-    int future_profit = max_profit(A, stock + 1, day, memo, buyDay, sellDay);
-    if (future_profit > max_profit_so_far) {
-        max_profit_so_far = future_profit;
-    }
-    memo[stock][day] = max_profit_so_far;
-    return max_profit_so_far;
+    int max_profit_current_day = A[stock][day] - min_price;
+
+    memo[stock][day] = max(max_profit(A, stock, day - 1, memo), max_profit_current_day);
+
+    return memo[stock][day];
 }
 
-void task3a(vector<vector<int>>& stocks, int& m, int& n)
+void task3a(vector<vector<int>>& stocks)
 {
+    int m = stocks.size();
+    int n = stocks[0].size();
     vector<vector<int>> memo(m, vector<int>(n, -1));
     int max_profit_so_far = 0;
     int stock = 0, buyDay = 0, sellDay = 0;
     for (int i = 0; i < m; i++) {
-        int temp_buyDay = 0, temp_sellDay = 0;
-        int temp_max_profit = max_profit(stocks, i, 0, memo, temp_buyDay, temp_sellDay);
+        int temp_max_profit = max_profit(stocks, i, n - 1, memo);
         if (temp_max_profit > max_profit_so_far) {
             max_profit_so_far = temp_max_profit;
             stock = i;
-            buyDay = temp_buyDay;
-            sellDay = temp_sellDay;
+        }
+    }
+
+    int min_price = stocks[stock][0];
+    for (int i = 1; i < n; i++) {
+        if (stocks[stock][i] - min_price == max_profit_so_far) {
+            sellDay = i;
+            break;
+        }
+        min_price = min(min_price, stocks[stock][i]);
+    }
+    for (int i = 0; i < sellDay; i++) {
+        if (stocks[stock][i] == min_price) {
+            buyDay = i;
+            break;
         }
     }
 
@@ -426,15 +432,118 @@ void task3a(vector<vector<int>>& stocks, int& m, int& n)
 }
 
 // Task 3b: Bottom-Up implementation of Big Theta(m * n) time dynamic programming algorithm for solving problem 1.
+
 void task3b(vector<vector<int>>& stocks)
 {
-    cout << "PLACEHOLDER FOR TASK 3b\n";
+    int m = stocks.size();
+    int n = stocks[0].size();
+
+    vector<vector<int>> memo(m, vector<int>(n, 0));
+    int max_profit_so_far = 0;
+    int stock = 0, buyDay = 0, sellDay = 0;
+
+    // Calculate the maximum profit for each stock
+    for (int i = 0; i < m; i++) {
+        int min_price = stocks[i][0];
+        for (int j = 1; j < n; j++) {
+            min_price = min(min_price, stocks[i][j]);
+            memo[i][j] = max(memo[i][j - 1], stocks[i][j] - min_price);
+        }
+    }
+
+    // Find the maximum profit among all stocks and the corresponding buy and sell days
+    for (int i = 0; i < m; i++) {
+        for (int j = 1; j < n; j++) {
+            if (memo[i][j] > max_profit_so_far) {
+                max_profit_so_far = memo[i][j];
+                stock = i;
+                sellDay = j;
+            }
+        }
+    }
+
+    int min_price = stocks[stock][0];
+    for (int i = 1; i < sellDay; i++) {
+        if (stocks[stock][i] < min_price) {
+            min_price = stocks[stock][i];
+            buyDay = i;
+        }
+    }
+
+    printProblem1Output(stock, buyDay, sellDay);
 }
 
 // Task 4: Big Theta(m * (n choose 2k)) time brute force algorithm for solving problem 2.
-void task4(vector<vector<int>>& stocks)
+void task4(vector<vector<int>>& stocks, int& k, int& m, int& n)
 {
-    cout << "PLACEHOLDER FOR TASK 4\n";
+    /*
+        - Initialize a vector of indices to represent the buy and sell days for each stock.
+        - Generate all possible combinations of buy and sell days using the indices vector.
+        - For each combination, calculate the profit made from buying and selling stocks for that combination.
+        - Keep track of the combination with the highest profit and return it as the result.
+    */
+    vector<vector<int>> max_transactions;
+    int max_profit = 0;
+
+    // Vector "stockIndices" of size m; stocks[i] is the index of the ith stock.
+    vector<int> stockIndices(m);
+    for (int i = 0; i < m; i++)
+    {
+        stockIndices[i] = i;
+    }
+
+    // Vector "transactionIndices" of size 2*k; transactionIndices[i] is
+    // the index of the day to buy or sell for transaction i.
+    vector<int> transactionIndices(2 * k);
+    for (int i = 0; i < 2 * k; i++)
+    {
+        transactionIndices[i] = i;
+    }
+
+    // This do-while loop iterates through all possible combinations of buying/selling days.
+    do
+    {
+        // Vectors to represent indices of potential buying & selling days.
+        vector<int> buy_indices(k), sell_indices(k);
+        for (int i = 0; i < k; i++)
+        {
+            buy_indices[i] = transactionIndices[2 * i];
+            sell_indices[i] = transactionIndices[2 * i + 1];
+        }
+        // Iterate through k transactions, calculating maximum profit for each one by finding buy/sell difference.
+        vector<vector<int>> transactions;
+        int profit = 0;
+        for (int i = 0; i < k; i++)
+        {
+            int stock = stockIndices[buy_indices[i]];
+            int buy_day = i;
+            int sell_day = i;
+            for (int j = i + 1; j < k; j++)
+            {
+                if (stocks[stock][j] > stocks[stock][sell_day])
+                {
+                    sell_day = j;
+                }
+            }
+            if (sell_day > i)
+            {
+                transactions.push_back({stock, buy_day, sell_day});
+                profit += stocks[stock][sell_day] - stocks[stock][buy_day];
+            }
+        }
+        // If the profit is greater than the current max_profit, update it and max_transactions.
+        if (profit > max_profit)
+        {
+            max_profit = profit;
+            max_transactions = transactions;
+        }
+    } while (next_permutation(transactionIndices.begin(), transactionIndices.end()));
+
+    // Print problem 2 output.
+    for (auto transaction : max_transactions)
+    {
+        cout << transaction[0] + 1 << " " << transaction[1] + 1 << " " << transaction[2] + 1 << endl;
+    }
 }
 
 // Task 5: Big Theta(m * n^2 * k) time dynamic programming algorithm for solving problem 2.
@@ -533,13 +642,11 @@ int main(int argc, char *argv[])
                 // The input type is a file.
                 cout << "Input is a file!" << endl;
                 string fileName = task;
-                int taskFromFile = isValidFile(task);
+                string taskFromFile = isValidFile(task);
 
-                if (taskFromFile != -1) {
+                if (taskFromFile != "-1") {
                     cout << "File is valid!" << endl;
-                    
                     // Parse the file.
-
                 }
                 else
                 {
@@ -547,7 +654,7 @@ int main(int argc, char *argv[])
                     return 0;
                 }
 
-                task = to_string(taskFromFile);
+                task = taskFromFile;
                 problem = findProblem(task);
                 cout << "This file is testing Task " << task << ". ";
                 cout << "This task corresponds to Problem " << problem << ".\n\n";
@@ -618,10 +725,11 @@ int main(int argc, char *argv[])
             }
             else if (task == "3a" || task == "3A")
             {
-                task3a(stockVector, m, n);
+                task3a(stockVector);
             }
             else if (task == "3b" || task == "3B")
             {
+                task3b(stockVector);
                 cout << "PLACEHOLDER: TASK 3b OUTPUT." << endl;
             }
             else if (task == "4")
