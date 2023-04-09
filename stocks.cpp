@@ -4,11 +4,41 @@
 #include <string>
 #include <map>
 #include <algorithm>
+#include <chrono>
 using namespace std;
+using namespace std::chrono;
 
 /*=============
 INPUT FUNCTIONS
 =============*/
+void logTime(auto& start, auto& stop, string& taskNumber)
+{   
+    auto duration_hr = duration_cast<hours>(stop - start);
+    auto duration_min = duration_cast<minutes>(stop - start); 
+    auto duration_sec = duration_cast<seconds>(stop - start);
+    auto duration_millisec = duration_cast<milliseconds>(stop - start);
+    auto duration_microsec = duration_cast<microseconds>(stop - start);
+
+    cout << "Outputting execution time of task's algorithm to time.txt" << endl; 
+
+    ofstream outputFile("time.txt");
+    if (outputFile.is_open())
+    {
+        outputFile << "TASK " << taskNumber << "'s ALGORITHM EXECUTION TIME IN INDIVIDUAL UNITS, NOT AS A COMBINED VALUE:" << endl;
+        outputFile << "Hours: " << duration_hr.count() << endl;
+        outputFile << "Minutes: " << duration_min.count() << endl;
+        outputFile << "Seconds: " << duration_sec.count() << endl;
+        outputFile << "Milliseconds: " << duration_millisec.count() << endl;
+        outputFile << "Microseconds: " << duration_microsec.count();
+        outputFile.close();
+        cout << "Values written to file." << endl;
+    }
+    else
+    {
+        cout << "Unable to open file." << endl;
+    }
+}
+
 bool isFile(string& input)
 {
     // Checks if the inputted string has the .txt extension as a suffix.
@@ -710,55 +740,77 @@ int main(int argc, char *argv[])
 
                 These operations depend on the problem and task type.
                 Functions exist to call upon each of the algorithms associated with a given task.
+            
+                Execution time will be measured with the "chrono" library.
             */
 
             cout << "The algorithm for task " << task << ", problem " << problem << " will now execute.\n";
             cout << "OUTPUT:\n\n";
-
+            auto start = high_resolution_clock::now();
+            auto stop = high_resolution_clock::now();
             if (task == "1")
             {
+                start = high_resolution_clock::now();
                 task1(stockVector, m, n);
+                stop = high_resolution_clock::now();
             }
             else if (task == "2")
             {
+                start = high_resolution_clock::now();
                 task2(stockVector);
+                stop = high_resolution_clock::now();
             }
             else if (task == "3a" || task == "3A")
             {
+                start = high_resolution_clock::now();
                 task3a(stockVector);
+                stop = high_resolution_clock::now();
             }
             else if (task == "3b" || task == "3B")
             {
+                start = high_resolution_clock::now();
                 task3b(stockVector);
+                stop = high_resolution_clock::now();
             }
             else if (task == "4")
             {
+                start = high_resolution_clock::now();
                 task4(stockVector, k, m, n);
+                stop = high_resolution_clock::now();
             }
             else if (task == "5")
             {
+                start = high_resolution_clock::now();
                 cout << "PLACEHOLDER: TASK 5 OUTPUT." << endl;
+                stop = high_resolution_clock::now();
             }
             else if (task == "6")
             {
+                start = high_resolution_clock::now();
                 cout << "PLACEHOLDER: TASK 6 OUTPUT." << endl;
+                stop = high_resolution_clock::now();
             }
             else if (task == "7")
             {
+                start = high_resolution_clock::now();
                 cout << "PLACEHOLDER: TASK 7 OUTPUT." << endl;
+                stop = high_resolution_clock::now();
             }
             else if (task == "8")
             {
+                start = high_resolution_clock::now();
                 cout << "PLACEHOLDER: TASK 8 OUTPUT." << endl;
+                stop = high_resolution_clock::now();
             }
             else if (task == "9")
             {
+                start = high_resolution_clock::now();
                 cout << "PLACEHOLDER: TASK 9 OUTPUT." << endl;
+                stop = high_resolution_clock::now();
             }
 
             cout << "\nExecution cycle complete.\n";
-            // printValues(m, n, k, c, stockVector, stockMap);
-
+            logTime(start, stop, task);
             /*
                 ============
                 END OF CYCLE

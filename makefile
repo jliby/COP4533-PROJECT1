@@ -1,2 +1,2 @@
 main:
-	g++ -o Stocks stocks.cpp
+	g++ -std=c++20 -o Stocks stocks.cpp
