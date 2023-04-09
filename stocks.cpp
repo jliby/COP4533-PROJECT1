@@ -428,7 +428,7 @@ void task3a(vector<vector<int>>& stocks)
         }
     }
 
-    cout << "Stock: " << stock + 1 << " Buy day: " << buyDay + 1 << " Sell day: " << sellDay + 1 << endl;
+    printProblem1Output(stock, buyDay, sellDay);
 }
 
 // Task 3b: Bottom-Up implementation of Big Theta(m * n) time dynamic programming algorithm for solving problem 1.
@@ -470,7 +470,7 @@ void task3b(vector<vector<int>>& stocks)
         }
     }
 
-    cout << "Stock: " << stock + 1 << " Buy day: " << buyDay + 1 << " Sell day: " << sellDay + 1<< endl;
+    printProblem1Output(stock, buyDay, sellDay);
 }
 
 // Task 4: Big Theta(m * (n choose 2k)) time brute force algorithm for solving problem 2.
