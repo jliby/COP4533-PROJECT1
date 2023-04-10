@@ -7,6 +7,7 @@ using namespace std;
 
 void Task4(const vector<vector<int>>& stocks, const int k) {
     vector<tuple<int, int, int>> transactions;
+    int total_profit = 0;
 
     for (int t = 0; t < k; t++) {
         int max_profit = 0;
@@ -39,13 +40,16 @@ void Task4(const vector<vector<int>>& stocks, const int k) {
             }
         }
         transactions.emplace_back(stock_index, buy_day, sell_day);
+        total_profit += max_profit;
     }
 
     for (const auto& transaction : transactions) {
         cout << "Stock: " << get<0>(transaction) << ", Buy Day: " << get<1>(transaction) 
              << ", Sell Day: " << get<2>(transaction) << endl;
     }
+    cout << "Total profit: " << total_profit << endl;
 }
+
 
 int main() {
     vector<vector<int>> stocks = {
