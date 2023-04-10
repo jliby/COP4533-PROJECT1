@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <limits>
 #include <algorithm>
 #include <chrono>
 using namespace std;
@@ -11,6 +12,8 @@ using namespace std::chrono;
 /*=============
 INPUT FUNCTIONS
 =============*/
+static int sellDay = 0;
+static int currentMax = 0;
 void logTime(auto& start, auto& stop, string& taskNumber, string outputFileDesignation)
 {   
     auto duration_hr = duration_cast<hours>(stop - start);
@@ -511,8 +514,7 @@ struct Result
     int buy_day;
     int sell_day;
 };
-int sellDay = 0;
-int currentMax = 0;
+
 Result task4Recursive(vector<vector<int>>& prices, int m, int n, int k, int stock_idx, int transactions, int day, bool canBuy) {
     if (day == n || transactions == k * 2) {
         return {0, -1, -1, -1};
@@ -563,15 +565,77 @@ void printTask4(Result task4Result)
 }
 
 // Task 5: Big Theta(m * n^2 * k) time dynamic programming algorithm for solving problem 2.
-void task5(vector<vector<int>>& stocks)
-{
-    cout << "PLACEHOLDER FOR TASK 5\n";
+int task5(vector<vector<int>>& prices, int m, int n, int& max_stock_idx, int& buy_day, int& sell_day) {
+    vector<vector<int>> dp(m, vector<int>(n, 0));
+
+    // Fill the DP table by iterating through all stocks and days
+    for (int stock_idx = 0; stock_idx < m; ++stock_idx) {
+        int min_price = prices[stock_idx][0];
+        for (int day = 1; day < n; ++day) {
+            // minimum price if a lower price is found
+            min_price = min(min_price, prices[stock_idx][day]);
+            //  current stock and day
+            dp[stock_idx][day] = max(dp[stock_idx][day - 1], prices[stock_idx][day] - min_price);
+        }
+    }
+
+    //  corresponding stock index and selling day
+    int max_profit = 0;
+    for (int stock_idx = 0; stock_idx < m; ++stock_idx) {
+        for (int day = 1; day < n; ++day) {
+            if (dp[stock_idx][day] > max_profit) {
+                max_profit = dp[stock_idx][day];
+                max_stock_idx = stock_idx;
+                sell_day = day;
+            }
+        }
+    }
+
+    //  maximum profit
+    int min_price = prices[max_stock_idx][0];
+    for (int day = 1; day < sell_day; ++day) {
+        if (prices[max_stock_idx][day] < min_price) {
+            min_price = prices[max_stock_idx][day];
+            buy_day = day;
+        }
+    }
+
+    return max_profit;
 }
 
 // Task 6: Big Theta(m * n * k) time dynamic programming algorithm for solving problem 2.
-void task6(vector<vector<int>>& stocks)
-{
-    cout << "PLACEHOLDER FOR TASK 6\n";
+int task6(vector<vector<int>>& prices, int m, int n, int k, int& max_stock_idx, int& buy_day, int& sell_day) {
+    vector<vector<vector<int>>> dp(m, vector<vector<int>>(k + 1, vector<int>(n, 0)));
+
+    for (int stock_idx = 0; stock_idx < m; ++stock_idx) {
+        for (int t = 1; t <= k; ++t) {
+            int max_diff = -prices[stock_idx][0];
+            for (int day = 1; day < n; ++day) {
+                dp[stock_idx][t][day] = max(dp[stock_idx][t][day - 1], prices[stock_idx][day] + max_diff);
+                max_diff = max(max_diff, dp[stock_idx][t - 1][day] - prices[stock_idx][day]);
+            }
+        }
+    }
+
+    int max_profit = 0;
+    for (int stock_idx = 0; stock_idx < m; ++stock_idx) {
+        if (dp[stock_idx][k][n - 1] > max_profit) {
+            max_profit = dp[stock_idx][k][n - 1];
+            max_stock_idx = stock_idx;
+        }
+    }
+
+    sell_day = -1;
+    for (int day = n - 1; day >= 0; --day) {
+        if (dp[max_stock_idx][k][day] == max_profit && sell_day == -1) {
+            sell_day = day;
+        } else if (dp[max_stock_idx][k][day] < max_profit) {
+            buy_day = day;
+            break;
+        }
+    }
+
+    return max_profit;
 }
 
 // Task 7: Big Theta(m * 2^n) time brute force algorithm for solving problem 3.
@@ -763,14 +827,18 @@ int main(int argc, char *argv[])
         }
         else if (task == "5")
         {
+            int max_stock_idx = 0, buy_day = 0, sell_day = 0;
             start = high_resolution_clock::now();
-            cout << "PLACEHOLDER: TASK 5 OUTPUT." << endl;
+            int max_profit = task5(stockVector, m, n, max_stock_idx, buy_day, sell_day);
+            cout << max_stock_idx + 1 << " " << buy_day + 1 << " " << sell_day + 1 << endl;
             stop = high_resolution_clock::now();
         }
         else if (task == "6")
         {
+            int max_stock_idx = 0, buy_day = 0, sell_day = 0;
             start = high_resolution_clock::now();
-            cout << "PLACEHOLDER: TASK 6 OUTPUT." << endl;
+            int max_profit = task6(stockVector, m, n, k, max_stock_idx, buy_day, sell_day);
+            cout << max_stock_idx + 1 << " " << buy_day + 1 << " " << sell_day + 1 << endl;
             stop = high_resolution_clock::now();
         }
         else if (task == "7")
