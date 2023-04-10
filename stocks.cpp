@@ -515,6 +515,8 @@ struct Result
     int sell_day;
 };
 
+static int task4SellDay = 0;
+
 Result task4Recursive(vector<vector<int>>& prices, int m, int n, int k, int stock_idx, int transactions, int day, bool canBuy) {
     if (day == n || transactions == k * 2) {
         return {0, -1, -1, -1};
@@ -532,7 +534,7 @@ Result task4Recursive(vector<vector<int>>& prices, int m, int n, int k, int stoc
         action_profit.profit = prices[stock_idx][day] + tmp.profit;
         if (currentMax < action_profit.profit) {
             currentMax = action_profit.profit;
-            sellDay = day;
+            task4SellDay = day;
         }
     }
 
@@ -561,7 +563,7 @@ Result task4(vector<vector<int>>& prices, int m, int n, int k) {
 
 void printTask4(Result task4Result)
 {
-    cout << task4Result.stock_idx + 1 << " " << task4Result.buy_day + 1 << " " << task4Result.sell_day + 1 << endl;
+    cout << task4Result.stock_idx + 1 << " " << task4Result.buy_day + 1 << " " << task4SellDay + 1 << endl;
 }
 
 // Task 5: Big Theta(m * n^2 * k) time dynamic programming algorithm for solving problem 2.
