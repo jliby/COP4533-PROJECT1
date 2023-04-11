@@ -6,6 +6,7 @@
 #include <limits>
 #include <algorithm>
 #include <chrono>
+#include <deque>
 using namespace std;
 using namespace std::chrono;
 
@@ -650,21 +651,143 @@ int task6(vector<vector<int>>& prices, int m, int n, int k, int& max_stock_idx, 
 }
 
 // Task 7: Big Theta(m * 2^n) time brute force algorithm for solving problem 3.
-void task7(vector<vector<int>>& stocks)
-{
-    cout << "PLACEHOLDER FOR TASK 7\n";
+int task7helper(vector<vector<int>>& A, int m, int n, int c, int current_day, int current_stock, int current_profit, vector<pair<int, pair<int, int>>>& transactions) {
+    if (current_day >= n || current_stock >= m) {
+        return current_profit;
+    }
+
+    int max_profit = current_profit;
+    vector<pair<int, pair<int, int>>> best_transactions = transactions;
+
+    // Sell current stock
+    vector<pair<int, pair<int, int>>> sell_transactions = transactions;
+    sell_transactions.push_back({current_stock, {current_day - c - 1, current_day}});
+    int sell_profit = A[current_stock][current_day] + task7helper(A, m, n, c, current_day + c + 1, 0, current_profit + A[current_stock][current_day], sell_transactions);
+    if (sell_profit > max_profit) {
+        max_profit = sell_profit;
+        best_transactions = sell_transactions;
+    }
+
+    // Move to next stock without selling
+    vector<pair<int, pair<int, int>>> next_stock_transactions = transactions;
+    int next_stock_profit = task7helper(A, m, n, c, current_day, current_stock + 1, current_profit, next_stock_transactions);
+    if (next_stock_profit > max_profit) {
+        max_profit = next_stock_profit;
+        best_transactions = next_stock_transactions;
+    }
+
+    // Move to next day without selling
+    vector<pair<int, pair<int, int>>> next_day_transactions = transactions;
+    int next_day_profit = task7helper(A, m, n, c, current_day + 1, 0, current_profit, next_day_transactions);
+    if (next_day_profit > max_profit) {
+        max_profit = next_day_profit;
+        best_transactions = next_day_transactions;
+    }
+
+    transactions = best_transactions;
+    return max_profit;
+}
+
+int task7(vector<vector<int>>& A, int m, int n, int c, vector<pair<int, pair<int, int>>>& transactions) {
+    return task7helper(A, m, n, c, 0, 0, 0, transactions);
 }
 
 // Task 8: Big Theta(m * n^2) time dynamic programming algorithm for solving problem 3.
-void task8(vector<vector<int>>& stocks)
-{
-    cout << "PLACEHOLDER FOR TASK 8\n";
+vector<vector<int>> task8DPFinder(vector<vector<int>> &prices, int c) {
+  int m = prices.size();
+  int n = prices[0].size();
+  vector<vector<int>> dp(m, vector<int>(n, 0));
+
+  for (int stock = 0; stock < m; stock++) {
+    for (int day = 0; day < n; day++) {
+      int max_profit = 0;
+      for (int sell_day = day + 1; sell_day < n; sell_day++) {
+        int profit = prices[stock][sell_day] - prices[stock][day];
+        if (sell_day + c < n) {
+          profit += dp[stock][sell_day + c];
+        }
+        max_profit = max(max_profit, profit);
+      }
+      dp[stock][day] =
+          day == 0 ? max_profit : max(max_profit, dp[stock][day - 1]);
+    }
+  }
+
+  return dp;
+}
+
+void task8(vector<vector<int>> &prices, vector<vector<int>> &dp,
+                       int c) {
+  int m = prices.size();
+  int n = prices[0].size();
+  int max_profit = 0;
+
+  for (int stock = 0; stock < m; stock++) {
+    int day = 0;
+    while (day < n) {
+      if (day == 0 || dp[stock][day] != dp[stock][day - 1]) {
+        int buy_day = day;
+        int sell_day = day + 1;
+        max_profit = 0;
+        for (int d = day + 1; d < n; d++) {
+          int profit = prices[stock][d] - prices[stock][day];
+          if (d + c < n) {
+            profit += dp[stock][d + c];
+          }
+
+          if (profit > max_profit) {
+            max_profit = profit;
+            sell_day = d;
+          }
+        }
+        cout << stock + 1 << " " << buy_day + 1 << " " << sell_day + 1 << endl;
+        day = sell_day + c;
+      } else {
+        day++;
+      }
+    }
+  }
 }
 
 // Task 9: Big Theta(m * n) time dynamic programming algorithm for solving problem 3.
-void task9(vector<vector<int>>& stocks)
-{
-    cout << "PLACEHOLDER FOR TASK 9\n";
+int task9(vector<vector<int>> &A, int c, vector<vector<int>> &transaction) {
+    int m = A.size(), n = A[0].size();
+    vector<vector<int>> dp(m, vector<int>(n, 0));
+    transaction.resize(m, vector<int>(2, -1));
+
+    for (int i = 0; i < m; ++i) {
+        deque<int> max_profit, transaction_idx;
+        for (int j = 0; j < n; ++j) {
+            if (j >= c) {
+                max_profit.push_back(A[i][j - c] - A[i][j - c - 1]);
+                transaction_idx.push_back(j - c);
+            }
+
+            if (j == 0 || A[i][j] > A[i][j - 1] + (max_profit.empty() ? 0 : max_profit.front())) {
+                dp[i][j] = A[i][j];
+                transaction[i] = {j, j};
+            } else {
+                dp[i][j] = A[i][j - 1] + max_profit.front();
+                transaction[i] = {transaction_idx.front(), j};
+            }
+
+            if (!max_profit.empty() && max_profit.front() == A[i][j - c] - A[i][j - c - 1]) {
+                max_profit.pop_front();
+                transaction_idx.pop_front();
+            }
+        }
+    }
+
+    int max_profit_val = 0, best_stock = -1;
+    for (int i = 0; i < m; ++i) {
+        if (dp[i][n - 1] > max_profit_val) {
+            max_profit_val = dp[i][n - 1];
+            best_stock = i;
+        }
+    }
+
+    cout << best_stock + 1 << " " << transaction[best_stock][0] + 1 << " " << transaction[best_stock][1] + 1 << endl;
+    return max_profit_val;
 }
 
 /*==
@@ -859,19 +982,26 @@ int main(int argc, char *argv[])
         else if (task == "7")
         {
             start = high_resolution_clock::now();
+            vector<pair<int, pair<int, int>>> transactions;
+            int maxProfit = task7(stockVector, m, n, c, transactions);
             cout << "PLACEHOLDER: TASK 7 OUTPUT." << endl;
+            for (const auto& t : transactions){
+                cout << t.first + 1 << " " << t.second.first + 1 << " " << t.second.second << endl;
+            }
             stop = high_resolution_clock::now();
         }
         else if (task == "8")
         {
             start = high_resolution_clock::now();
-            cout << "PLACEHOLDER: TASK 8 OUTPUT." << endl;
+            vector<vector<int>> task8_dp = task8DPFinder(stockVector, c);
+            task8(stockVector, task8_dp, c);
             stop = high_resolution_clock::now();
         }
         else if (task == "9")
         {
+            vector<vector<int>> transaction;
             start = high_resolution_clock::now();
-            cout << "PLACEHOLDER: TASK 9 OUTPUT." << endl;
+            int maxProfit = task9(stockVector, c, transaction);
             stop = high_resolution_clock::now();
         }
 
