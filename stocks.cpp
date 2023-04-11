@@ -621,6 +621,25 @@ int task6(vector<vector<int>>& prices, int m, int n, int k, int& max_stock_idx, 
         }
     }
 
+    vector<pair<int,int>> transactions;
+    int day = sell_day;
+    while (k > 0 && day >= 0) {
+        if (dp[max_stock_idx][k][day] == dp[max_stock_idx][k][day-1]) {
+            day--;
+        } else {
+            transactions.push_back(make_pair(day, -1));
+            for (int prev_day = day-1; prev_day >= 0; prev_day--) {
+                if (dp[max_stock_idx][k-1][prev_day] - prices[max_stock_idx][prev_day] == dp[max_stock_idx][k][day]) {
+                    transactions.back().second = prev_day;
+                    break;
+                }
+            }
+            k--;
+            day = transactions.back().second - 1;
+        }
+    }
+    reverse(transactions.begin(), transactions.end());
+
     return max_profit;
 }
 

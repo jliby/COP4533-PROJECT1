@@ -65,6 +65,7 @@ int task6(vector<vector<int>>& prices, int m, int n, int k, int& max_stock_idx, 
 
     return max_profit;
 }
+
 int main() {
     vector<vector<int>> prices = {{3,2,6,5,0,3},{1,3,1,2,5,4},{3,3,3,3,3,3}};
     int m = 3;
