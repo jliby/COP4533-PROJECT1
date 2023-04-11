@@ -507,63 +507,47 @@ void task3b(vector<vector<int>>& stocks)
 }
 
 // Task 4: Big Theta(m * (n choose 2k)) time brute force algorithm for solving problem 2.
-struct Result
-{
-    int profit;
-    int stock_idx;
-    int buy_day;
-    int sell_day;
-};
+void Task4(const vector<vector<int>>& stocks, const int k) {
+    vector<tuple<int, int, int>> transactions;
+    int total_profit = 0;
 
-static int task4SellDay = 0;
+    for (int t = 0; t < k; t++) {
+        int max_profit = 0;
+        int stock_index = 0;
+        int buy_day = 0;
+        int sell_day = 0;
 
-Result task4Recursive(vector<vector<int>>& prices, int m, int n, int k, int stock_idx, int transactions, int day, bool canBuy) {
-    if (day == n || transactions == k * 2) {
-        return {0, -1, -1, -1};
-    }
-
-    Result no_action_profit = task4Recursive(prices, m, n, k, stock_idx, transactions, day + 1, canBuy);
-    Result action_profit = {0, -1, -1, -1};
-
-    if (canBuy) {
-        Result tmp = task4Recursive(prices, m, n, k, stock_idx, transactions + 1, day + 1, !canBuy);
-        action_profit.profit = -prices[stock_idx][day] + tmp.profit;
-        action_profit.buy_day = day;
-    } else {
-        Result tmp = task4Recursive(prices, m, n, k, stock_idx, transactions + 1, day + 1, !canBuy);
-        action_profit.profit = prices[stock_idx][day] + tmp.profit;
-        if (currentMax < action_profit.profit) {
-            currentMax = action_profit.profit;
-            task4SellDay = day;
+        for (int i = 0; i < stocks.size(); i++) {
+            for (int j = 0; j < stocks[i].size(); j++) {
+                const int buy_price = stocks[i][j];
+                for (int s = j + 1; s < stocks[i].size(); s++) {
+                    const int sell_price = stocks[i][s];
+                    const int profit = sell_price - buy_price;
+                    if (profit > max_profit) {
+                        bool is_valid_transaction = all_of(transactions.begin(), transactions.end(),
+                            [&](const tuple<int, int, int>& t) {
+                                const int stock = get<0>(t);
+                                const int buy = get<1>(t);
+                                const int sell = get<2>(t);
+                                return (i != stock) || (j > sell) || (s < buy);
+                            });
+                        if (is_valid_transaction) {
+                            max_profit = profit;
+                            stock_index = i;
+                            buy_day = j;
+                            sell_day = s;
+                        }
+                    }
+                }
+            }
         }
+        transactions.emplace_back(stock_index, buy_day, sell_day);
+        total_profit += max_profit;
     }
 
-    if (action_profit.profit > no_action_profit.profit) {
-        action_profit.stock_idx = stock_idx;
-        no_action_profit = action_profit;
-    } else {
-        no_action_profit.stock_idx = stock_idx;
+    for (const auto& transaction : transactions) {
+        cout << get<0>(transaction) + 1 << " " << get<1>(transaction) + 1 << " " << get<2>(transaction) + 1 << endl;
     }
-
-    return no_action_profit;
-}
-
-Result task4(vector<vector<int>>& prices, int m, int n, int k) {
-    Result max_profit = {0, -1, -1, -1};
-
-    for (int i = 0; i < m; ++i) {
-        Result tmp = task4Recursive(prices, m, n, k, i, 0, 0, true);
-        if (tmp.profit > max_profit.profit) {
-            max_profit = tmp;
-        }
-    }
-
-    return max_profit;
-}
-
-void printTask4(Result task4Result)
-{
-    cout << task4Result.stock_idx + 1 << " " << task4Result.buy_day + 1 << " " << task4SellDay + 1 << endl;
 }
 
 // Task 5: Big Theta(m * n^2 * k) time dynamic programming algorithm for solving problem 2.
@@ -823,8 +807,9 @@ int main(int argc, char *argv[])
         else if (task == "4")
         {
             start = high_resolution_clock::now();
-            Result result = task4(stockVector, m, n, k);
-            printTask4(result);
+            // Result result = task4(stockVector, m, n, k);
+            // printTask4(result);
+            Task4(stockVector, k);
             stop = high_resolution_clock::now();
         }
         else if (task == "5")
