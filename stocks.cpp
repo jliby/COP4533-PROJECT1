@@ -507,7 +507,7 @@ void task3b(vector<vector<int>>& stocks)
 }
 
 // Task 4: Big Theta(m * (n choose 2k)) time brute force algorithm for solving problem 2.
-void Task4(const vector<vector<int>>& stocks, const int k) {
+void task4(const vector<vector<int>>& stocks, const int k) {
     vector<tuple<int, int, int>> transactions;
     int total_profit = 0;
 
@@ -832,9 +832,7 @@ int main(int argc, char *argv[])
         else if (task == "4")
         {
             start = high_resolution_clock::now();
-            // Result result = task4(stockVector, m, n, k);
-            // printTask4(result);
-            Task4(stockVector, k);
+            task4(stockVector, k);
             stop = high_resolution_clock::now();
         }
         else if (task == "5")
