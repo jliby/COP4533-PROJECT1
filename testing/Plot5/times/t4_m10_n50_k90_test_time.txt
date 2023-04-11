@@ -1,0 +1,6 @@
+TASK 4's ALGORITHM EXECUTION TIME IN INDIVIDUAL UNITS, NOT AS A COMBINED VALUE:
+Hours: 0
+Minutes: 0
+Seconds: 0
+Milliseconds: 326
+Microseconds: 326922
