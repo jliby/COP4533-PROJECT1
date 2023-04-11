@@ -2,5 +2,5 @@ TASK 6's ALGORITHM EXECUTION TIME IN INDIVIDUAL UNITS, NOT AS A COMBINED VALUE:
 Hours: 0
 Minutes: 0
 Seconds: 0
-Milliseconds: 9
-Microseconds: 9151
+Milliseconds: 2
+Microseconds: 2311
