@@ -984,7 +984,6 @@ int main(int argc, char *argv[])
             start = high_resolution_clock::now();
             vector<pair<int, pair<int, int>>> transactions;
             int maxProfit = task7(stockVector, m, n, c, transactions);
-            cout << "PLACEHOLDER: TASK 7 OUTPUT." << endl;
             for (const auto& t : transactions){
                 cout << t.first + 1 << " " << t.second.first + 1 << " " << t.second.second << endl;
             }
